@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="format-detection" content="telephone=no"/>
+	<meta name="x5-fullscreen" content="true">
+	<meta name="full-screen" content="yes">
+	<title>日历</title>
+	<link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+	<div class="cl" id="cl">
+		<div class="cl-header">
+			<span class='cl-year' id="clyear" v-cloak>{{year}}</span>年
+			<ul>
+				<li>日</li>
+				<li>一</li>
+				<li>二</li>
+				<li>三</li>
+				<li>四</li>
+				<li>五</li>
+				<li>六</li>
+			</ul>
+		</div>
+		<!-- 组件 -->
+		<calendar></calendar>
+		<div class="cl-footer">
+			<span class="col-left" v-tap='{ methods: addLastMonth }'>向上翻</span>
+			<span class=" col-left" v-tap='{ methods: gotoToday }'>今天</span>
+		</div>
+	</div>
+	<script data-main="./js/index.js" src="./lib/require.js" charset="utf-8"></script>
+</body>
+
+</html>
