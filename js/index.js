@@ -3,13 +3,14 @@ require.config({
     paths: {
         'text': ['http://cdn.bootcss.com/require-text/2.0.12/text.min', './text.min'],
         'css': ['http://apps.bdimg.com/libs/require-css/0.1.8/css.min', './css.min'],
-        'jquery': './jquery',
+        'jquery': ['http://apps.bdimg.com/libs/jquery/1.8.3/jquery.min', 'https://cdn.css.net/libs/jquery/1.8.3/jquery.min', './jquery'],
         'underscore': ['http://apps.bdimg.com/libs/underscore.js/1.7.0/underscore-min', './underscore.min'],
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
         'vueTap': ['./vue-tap'],
         'infiniteScroll': './infiniteScroll',
-        'Tween': ['./Tween.min', 'https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min'],
-        'Vuex': ['./vue-vuex.min']
+        'Tween': ['https://cdn.css.net/libs/tween.js/16.3.5/Tween.min', './Tween.min'],
+        'Vuex': ['https://cdn.css.net/libs/vuex/2.1.1/vuex.min', './vue-vuex.min'],
+        'VueRouter': ['https://cdn.css.net/libs/vue-router/2.1.1/vue-router.min', './vue-router']
     },
     shim: {
         'infiniteScroll': {
@@ -19,15 +20,22 @@ require.config({
         'Vuex': {
             desps: ['vue'],
             exports: 'Vuex'
+        },
+        'VueRouter': {
+            deps: ['vue'],
+            exports: 'VueRouter'
         }
+
     }
 });
 
-require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex'],
-    function($, _, infiniteScroll, Vue, Tween, vueTap, Vuex) {
-        Vue.use(infiniteScroll);
-        Vue.use(vueTap);
-        Vue.use(Vuex);
+require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter'],
+    function(_, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter) {
+        Vue.use(infiniteScroll); //自定义scoll指令
+        Vue.use(vueTap); //自定义tap指令
+        Vue.use(Vuex); //状态管理
+        Vue.use(VueRouter); //路由
+
 
         var store = new Vuex.Store({
             state: {
@@ -39,14 +47,14 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
                     day: 1
                 },
                 listarr: [],
-                upcount: 0//向上翻页次数
+                upcount: 0 //向上翻页次数
             },
             mutations: {
-                goup:function(state){
-                  state.upcount++;
+                goup: function(state) {
+                    state.upcount++;
                 },
-                changeYear: function(state,y){
-                  state.year = y;
+                changeYear: function(state, y) {
+                    state.year = y;
                 },
                 editToday: function(state, obj) {
                     state.today = obj;
@@ -59,9 +67,10 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
                 }
             }
         });
+
         //定义组件 － 顶部组件
         var clheader = {
-          template: '\
+            template: '\
           <div class="cl-header">\
             <span class="cl-year" id="clyear" v-cloak>{{year}}年</span>\
             <ul>\
@@ -75,32 +84,32 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
             </ul>\
           </div>\
             ',
-            data: function(){
+            data: function() {
 
             },
             computed: {
-              year: function(){
-                return this.$store.state.year;
-              }
+                year: function() {
+                    return this.$store.state.year;
+                }
             }
         };
 
         //定义组件 -  calendar
         var calendar = {
             template: '\
-            <div class="cl-main" id="clmain"  v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10" >\
+            <div class="cl-main" id="clmain"  v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10" keep-alive>\
               <template v-for="list in listarr" :key="list[0]+\'\'+list[1]" >\
                   <ul class="cl-list" :data-ym="list[0]+\'\'+list[1]" >\
-                    <template v-for="day in list[2]" :key="list[0]+\'\'+list[1]+\'\'+day">\
-                      <li v-if="day == 1" :style="list[3]" :data-y="list[0]" :data-m="list[1]" :data-date="day" >\
+                    <template  v-for="day in list[2]" :key="list[0]+\'\'+list[1]+\'\'+day">\
+                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-if="day == 1" :style="list[3]" :data-y="list[0]" :data-m="list[1]" :data-date="day" >\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
                         <span class="cl-month">{{list[1]}}月</span>\
-                      </li>\
-                      <li v-else>\
+                      </router-link>\
+                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-else>\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
-                      </li>\
+                      </router-link>\
                     </template>\
                   </ul>\
               </template>\
@@ -109,7 +118,7 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
             props: [],
             data: function() {
                 return {
-
+                  scrollTop:0
                 }
             },
             //计算属性
@@ -120,25 +129,42 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
                 listarr: function() {
                     return this.$store.state.listarr;
                 },
-                upcount: function(){
-                  return this.$store.state.upcount;
+                upcount: function() {
+                    return this.$store.state.upcount;
                 }
             },
-            watch:{
-              upcount: function(newvalue, oldvalue){
-                if(newvalue > oldvalue){
-                  this.prependlist(_.first(this.$store.state.listarr));
+            watch: {
+                upcount: function(newvalue, oldvalue) {
+                    if (newvalue > oldvalue) {
+                        this.prependlist(_.first(this.$store.state.listarr));
+                    }
                 }
-              }
             },
             created: function() {
                 this.init();
             },
+            mounted: function() {
+              //初次挂载到元素上才调用这个勾子函数
+            },
+            //路由进入
+            beforeRouteEnter(to, from, next) {
+                next(function(vm){
+                      vm.$el.scrollTop = vm.scrollTop;
+                });
+            },
+            //路由离开
+            beforeRouteLeave(to, from, next) {
+                    this.scrollTop = this.$el.scrollTop;
+                next();
+            },
             methods: {
                 //初始化
                 init: function() {
+                    if (this.$store.state.listarr.length > 0) {
+                        return false;
+                    }
                     var d = this.getToday();
-                    this.$store.commit('changeYear',d.year);
+                    this.$store.commit('changeYear', d.year);
                     this.$store.commit('editToday', d);
                     var year = d.year;
                     month = d.month;
@@ -246,72 +272,105 @@ require(['jquery', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vu
                 }
             }
         };
-
+        //自定义组件 － 底部组件
         var clfooter = {
-          template:'\
+                template: '\
           <div class="cl-footer">\
             <span class="col-left" v-tap="{ methods: addLastMonth }">向上翻</span>\
             <span class=" col-left" v-tap="{ methods: gotoToday }">今天</span>\
           </div>\
           ',
-          methods: {
-            //tap事件，上个月
-            addLastMonth: function() {
-                //this.prependlist(_.first(this.$store.state.listarr));
-                this.$store.commit('goup');
-                var clmainScrollTop = document.getElementById('clmain').scrollTop;
+                methods: {
+                    //tap事件，上个月
+                    addLastMonth: function() {
+                        //this.prependlist(_.first(this.$store.state.listarr));
+                        this.$store.commit('goup');
+                        var clmainScrollTop = document.getElementById('clmain').scrollTop;
 
-                function animate(time) {
-                    requestAnimationFrame(animate)
-                    TWEEN.update(time)
-                }
-                new TWEEN.Tween({
-                        tweeningNumber: clmainScrollTop
-                    })
-                    .easing(TWEEN.Easing.Quadratic.Out)
-                    .to({
-                        tweeningNumber: 0
-                    }, 500)
-                    .onUpdate(function() {
-                        document.getElementById('clmain').scrollTop = this.tweeningNumber.toFixed(0)
-                    })
-                    .start();
-                animate();
-            },
-            //tap事件
-            gotoToday: function() {
-                var todayBoxOffsetTop = document.getElementById('cltoday').parentElement.parentElement.offsetTop;
-                var clmainScrollTop = document.getElementById('clmain').scrollTop;
+                        function animate(time) {
+                            requestAnimationFrame(animate)
+                            TWEEN.update(time)
+                        }
+                        new TWEEN.Tween({
+                                tweeningNumber: clmainScrollTop
+                            })
+                            .easing(TWEEN.Easing.Quadratic.Out)
+                            .to({
+                                tweeningNumber: 0
+                            }, 500)
+                            .onUpdate(function() {
+                                document.getElementById('clmain').scrollTop = this.tweeningNumber.toFixed(0)
+                            })
+                            .start();
+                        animate();
+                    },
+                    //tap事件
+                    gotoToday: function() {
+                        if (!document.getElementById('cltoday')) {
+                            return false;
+                        }
+                        var todayBoxOffsetTop = document.getElementById('cltoday').parentElement.parentElement.offsetTop;
+                        var clmainScrollTop = document.getElementById('clmain').scrollTop;
 
-                function animate(time) {
-                    requestAnimationFrame(animate)
-                    TWEEN.update(time)
+                        function animate(time) {
+                            requestAnimationFrame(animate)
+                            TWEEN.update(time)
+                        }
+                        new TWEEN.Tween({
+                                tweeningNumber: clmainScrollTop
+                            })
+                            .easing(TWEEN.Easing.Quadratic.Out)
+                            .to({
+                                tweeningNumber: todayBoxOffsetTop
+                            }, 500)
+                            .onUpdate(function() {
+                                document.getElementById('clmain').scrollTop = this.tweeningNumber.toFixed(0)
+                            })
+                            .start();
+                        animate();
+                    }
                 }
-                new TWEEN.Tween({
-                        tweeningNumber: clmainScrollTop
-                    })
-                    .easing(TWEEN.Easing.Quadratic.Out)
-                    .to({
-                        tweeningNumber: todayBoxOffsetTop
-                    }, 500)
-                    .onUpdate(function() {
-                        document.getElementById('clmain').scrollTop = this.tweeningNumber.toFixed(0)
-                    })
-                    .start();
-                animate();
             }
-          }
-        }
+            //自定义组件 - 日程管理
+        var clmanage = {
+            template: '\
+              <div class="clmanage" keep-alive>\
+                  {{ $route.params.year }}年{{ $route.params.month }}月{{ $route.params.date }} 日\
+                  <br/>\
+              </div>\
+            '
+        };
+
+        //设置路由
+        var routes = [{
+            path: '/',
+            component: calendar,
+            beforeEnter: function(to, from, next) {
+                //console.log(from);
+                next();
+            }
+        }, {
+            path: '/manage/:year/:month/:date',
+            component: clmanage
+        }];
+
+        //路由实例
+        var router = new VueRouter({
+            routes: routes
+        });
+
         //vue应用实例
         var cl = new Vue({
             el: "#cl",
             data: {
                 year: ''
             },
+            router,
             store,
             components: {
                 'clheader': clheader,
                 'calendar': calendar,
+                'clmanage': clmanage,
                 'clfooter': clfooter
             },
             created: function() {},

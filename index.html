@@ -16,10 +16,12 @@
 <body>
 	<div class="cl" id="cl">
 		<clheader></clheader>
-		<calendar></calendar>
+			<keep-alive>
+				<router-view></router-view>
+			</keep-alive>
 		<clfooter></clfooter>
 	</div>
-	
+
 	<script data-main="./js/index.js" src="./lib/require.js" charset="utf-8"></script>
 </body>
 

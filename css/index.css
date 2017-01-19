@@ -106,7 +106,7 @@ a, input {
   position: relative;
   width: 100%;
   height: calc(100% - 100px);
-  padding-top: 50px;
+  padding-top: 70px;
   padding-bottom: 50px;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -157,3 +157,25 @@ a, input {
   left: 20%;
   bottom:0;
 }
+
+/*过渡效果*/
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s ;
+
+}
+.fade-enter, .fade-leave-active {
+  opacity: 0;
+}
+
+/*日程管理*/
+.clmanage{
+  position: relative;
+  width: 100%;
+  height: calc(100% - 100px);
+  padding: 70px 10px 50px 10px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+.clmanage .header
