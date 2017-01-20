@@ -1,13 +1,13 @@
 require.config({
     baseUrl: './lib',
-    map:{
-      '*':{
-        'css':['./css.min']
-      }
+    map: {
+        '*': {
+            'css': ['./css.min']
+        }
     },
     paths: {
         'text': ['http://cdn.bootcss.com/require-text/2.0.12/text.min', './text.min'],
-        'Animate':['./animate.min'],
+        'Animate': ['./animate.min'],
         'jquery': ['http://apps.bdimg.com/libs/jquery/1.8.3/jquery.min', 'https://cdn.css.net/libs/jquery/1.8.3/jquery.min', './jquery'],
         'underscore': ['http://apps.bdimg.com/libs/underscore.js/1.7.0/underscore-min', './underscore.min'],
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
@@ -35,8 +35,8 @@ require.config({
     }
 });
 
-require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
-    function(Animate,_, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
+require(['css!Animate', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
+    function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
         Vue.use(infiniteScroll); //自定义scoll指令
         Vue.use(vueTap); //自定义tap指令
         Vue.use(Vuex); //状态管理
@@ -55,7 +55,7 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                 listarr: [],
                 upcount: 0, //向上翻页次数,
                 showfooter: false,
-                selectedDate:[]//所选择的日期
+                selectedDate: [] //所选择的日期
             },
             mutations: {
                 goup: function(state) {
@@ -76,8 +76,11 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                 switchFooter: function(state, arr) {
                     state.showfooter = !state.showfooter;
                 },
-                changeSelectedDate:  function(state, obj){
-                  state.selectedDate = obj;
+                changeSelectedDate: function(state, obj) {
+                    state.selectedDate = obj;
+                },
+                changeYear: function(state,num){
+                  state.year = num ;
                 }
             }
         });
@@ -111,8 +114,8 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                 year: function() {
                     return this.$store.state.year;
                 },
-                show: function(){
-                  return !this.$store.state.showfooter;
+                show: function() {
+                    return !this.$store.state.showfooter;
                 }
             }
         };
@@ -120,7 +123,7 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
         //定义组件 - calendar主体
         var calendar = {
             template: '\
-            <div class="cl-main" id="clmain"  v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10" keep-alive>\
+            <div class="cl-main" id="clmain" @scroll="onScroll" v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">\
               <template v-for="list in listarr" :key="list[0]+\'\'+list[1]" >\
                   <ul class="cl-list" :data-ym="list[0]+\'\'+list[1]" >\
                     <template  v-for="day in list[2]" :key="list[0]+\'\'+list[1]+\'\'+day">\
@@ -183,6 +186,7 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                 next();
             },
             methods: {
+
                 //初始化
                 init: function() {
                     if (this.$store.state.listarr.length > 0) {
@@ -197,7 +201,32 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                     this.appendlist(_.last(this.$store.state.listarr));
                     this.prependlist(_.first(this.$store.state.listarr));
                 },
+                onScroll: function() {
+                    this.busy = true;
+                    var that = this;
+                    if(this.busy){
+                      setTimeout(function(){
+                        var nodelist = document.querySelectorAll("#clmain ul");
+                        var a = Object.
+                        keys(nodelist).map(function(item) {
+                            return nodelist[item]
+                        }).map(function(item) {
+                            return item.getBoundingClientRect().top
+                        });
+                        var b = 0;
+                        for (var i = 0; i < a.length; i++) {
+                            if (a[i] > 0) {
+                                var b = i;
+                                break;
+                            }
+                        }
+                        var y = that.$store.state.listarr[b][0];
+                        that.$store.commit('changeYear', y);
+                        that.busy = false;
+                      },500);
+                    }
 
+                },
                 //向下加载更多
                 loadMore: function() {
                     this.busy = true;
@@ -207,7 +236,7 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                             that.appendlist(_.last(that.$store.state.listarr));
                         }
                         that.busy = false;
-                    }, 1000);
+                    }, 500);
                 },
                 //列表头部添加一个月
                 prependlist: function(arr) {
@@ -387,49 +416,52 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
                   </template>\
               </div>\
             ',
-            data: function(){
-              return {
-                coursearr:[
-                  {time:"12:00:00",title:"人际交流的重要性", content:"好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."}
-                ],
-                week : [
-                  "Sunday",
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday"
-                ],
-                months: [
-                  'Jan',
-                  'Feb',
-                  'Mar',
-                  'Apr',
-                  'May',
-                  'June',
-                  'July',
-                  'Aug',
-                  'Sept',
-                  'Oct',
-                  'Nov',
-                  'Dec'
-                ]
-              }
+            data: function() {
+                return {
+                    coursearr: [{
+                        time: "12:00:00",
+                        title: "人际交流的重要性",
+                        content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                    }],
+                    week: [
+                        "Sunday",
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday"
+                    ],
+                    months: [
+                        'Jan',
+                        'Feb',
+                        'Mar',
+                        'Apr',
+                        'May',
+                        'June',
+                        'July',
+                        'Aug',
+                        'Sept',
+                        'Oct',
+                        'Nov',
+                        'Dec'
+                    ]
+                }
             },
-            created: function(){
+            created: function() {
 
             },
-            beforeRouteEnter: function(to, from ,next){
-                next(function(vm){
-                  var time = {};
-                  time.year = parseInt(vm.$route.params.year);
-                  time.month = parseInt(vm.$route.params.month);
-                  time.date = parseInt(vm.$route.params.date);
-                  time.day = (new Date(time.year, (time.month-1), time.date)).getDay();
-                  time.day = vm.week[time.day];
-                  time.month = vm.months[(time.month-1)];
-                  vm.$store.commit('changeSelectedDate', time);
+            beforeRouteEnter: function(to, from, next) {
+                next(function(vm) {
+                    var time = {};
+                    time.year = parseInt(vm.$route.params.year);
+                    time.month = parseInt(vm.$route.params.month);
+                    time.date = parseInt(vm.$route.params.date);
+                    time.day = (new Date(time.year, (time.month - 1), time.date)).getDay();
+                    time.day = vm.week[time.day];
+                    time.month = vm.months[(time.month - 1)];
+                    vm.$store.commit('changeSelectedDate', time);
+                    vm.$store.commit('changeYear', time.year);
                 });
             },
             methods: {
@@ -440,11 +472,7 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
         //设置路由
         var routes = [{
             path: '/',
-            component: calendar,
-            beforeEnter: function(to, from, next) {
-                //console.log(from);
-                next();
-            }
+            component: calendar
         }, {
             path: '/manage/:year/:month/:date',
             component: clmanage
@@ -457,23 +485,16 @@ require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap',
 
         //vue应用实例
         var cl = new Vue({
-            el: "#cl",
-            data: {
-
-            },
-            router,
-            store,
+            data: {},
+            router: router,
+            store: store,
             components: {
                 'clheader': clheader,
                 'calendar': calendar,
                 'clmanage': clmanage,
                 'clfooter': clfooter
             },
-            created: function() {},
-            methods: {
-
-            }
-
-        });
+            created: function() {}
+        }).$mount("#cl");
 
     });
