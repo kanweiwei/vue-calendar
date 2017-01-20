@@ -71,6 +71,7 @@ a, input {
   position: relative;
   width: 100%;
   color: #000;
+  overflow:hidden;
 }
 .cl-header ul li {
   position: relative;
@@ -80,6 +81,14 @@ a, input {
   line-height: 18px;
   font-size: 14px;
   text-align: center;
+}
+.cl-header .selectedTime{
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+  font-weight: bolder;
+  line-height: 24px;
+  height: 24px;
 }
 .cl-footer {
   position: absolute;
@@ -105,7 +114,7 @@ a, input {
 .cl-main {
   position: relative;
   width: 100%;
-  height: calc(100% - 100px);
+  height: calc(100% - 50px);
   padding-top: 70px;
   padding-bottom: 50px;
   overflow-y: scroll;
@@ -166,16 +175,65 @@ a, input {
 .fade-enter, .fade-leave-active {
   opacity: 0;
 }
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-out .5s;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes bounce-out {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
 
 /*日程管理*/
 .clmanage{
   position: relative;
   width: 100%;
-  height: calc(100% - 100px);
-  padding: 70px 10px 50px 10px;
+  height: calc(100% - 50px);
+  padding: 100px 10px 10px;
   overflow-y: scroll;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
+
 }
-.clmanage .header
+.clmanage .header{
+
+}
+.clmanage .course {
+  position: relative;
+  width: 100%;
+  background-color: #f3ede6;
+  border-radius: 4px;
+  padding: 20px 10px;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+.clmanage .course .course-time {
+  font-size: 14px;
+  color: #666;
+}
+.clmanage .course .course-title{
+  color: #e53d25;
+  font-size: 18px;
+  padding: 5px 0;
+}
