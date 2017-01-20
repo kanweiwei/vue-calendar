@@ -1,7 +1,13 @@
 require.config({
     baseUrl: './lib',
+    map:{
+      '*':{
+        'css':['./css.min']
+      }
+    },
     paths: {
         'text': ['http://cdn.bootcss.com/require-text/2.0.12/text.min', './text.min'],
+        'Animate':['./animate.min'],
         'jquery': ['http://apps.bdimg.com/libs/jquery/1.8.3/jquery.min', 'https://cdn.css.net/libs/jquery/1.8.3/jquery.min', './jquery'],
         'underscore': ['http://apps.bdimg.com/libs/underscore.js/1.7.0/underscore-min', './underscore.min'],
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
@@ -29,8 +35,8 @@ require.config({
     }
 });
 
-require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
-    function(_, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
+require(['css!Animate','underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
+    function(Animate,_, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
         Vue.use(infiniteScroll); //自定义scoll指令
         Vue.use(vueTap); //自定义tap指令
         Vue.use(Vuex); //状态管理
@@ -48,7 +54,8 @@ require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueR
                 },
                 listarr: [],
                 upcount: 0, //向上翻页次数,
-                showfooter: false
+                showfooter: false,
+                selectedDate:[]//所选择的日期
             },
             mutations: {
                 goup: function(state) {
@@ -68,6 +75,9 @@ require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueR
                 },
                 switchFooter: function(state, arr) {
                     state.showfooter = !state.showfooter;
+                },
+                changeSelectedDate:  function(state, obj){
+                  state.selectedDate = obj;
                 }
             }
         });
@@ -86,9 +96,12 @@ require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueR
               <li>五</li>\
               <li>六</li>\
             </ul>\
+            <transition name=""\
+            enter-active-class="animated bounceInDown"\>\
             <div class="selectedTime" v-if="show">\
-              时间\
+              {{$store.state.selectedDate.day}}&nbsp;&nbsp;{{$store.state.selectedDate.month}}.{{$store.state.selectedDate.date}},&nbsp;&nbsp;{{$store.state.selectedDate.year}}\
             </div>\
+            </transition>\
           </div>\
             ',
             data: function() {
@@ -378,11 +391,46 @@ require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueR
               return {
                 coursearr:[
                   {time:"12:00:00",title:"人际交流的重要性", content:"好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."}
+                ],
+                week : [
+                  "Sunday",
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday"
+                ],
+                months: [
+                  'Jan',
+                  'Feb',
+                  'Mar',
+                  'Apr',
+                  'May',
+                  'June',
+                  'July',
+                  'Aug',
+                  'Sept',
+                  'Oct',
+                  'Nov',
+                  'Dec'
                 ]
               }
             },
             created: function(){
 
+            },
+            beforeRouteEnter: function(to, from ,next){
+                next(function(vm){
+                  var time = {};
+                  time.year = parseInt(vm.$route.params.year);
+                  time.month = parseInt(vm.$route.params.month);
+                  time.date = parseInt(vm.$route.params.date);
+                  time.day = (new Date(time.year, (time.month-1), time.date)).getDay();
+                  time.day = vm.week[time.day];
+                  time.month = vm.months[(time.month-1)];
+                  vm.$store.commit('changeSelectedDate', time);
+                });
             },
             methods: {
 

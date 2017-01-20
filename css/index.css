@@ -71,6 +71,7 @@ a, input {
   position: relative;
   width: 100%;
   color: #000;
+  overflow:hidden;
 }
 .cl-header ul li {
   position: relative;
@@ -85,7 +86,9 @@ a, input {
   text-align: center;
   color: #666;
   font-size: 18px;
+  font-weight: bolder;
   line-height: 24px;
+  height: 24px;
 }
 .cl-footer {
   position: absolute;
