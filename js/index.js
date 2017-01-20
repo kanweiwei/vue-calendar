@@ -202,7 +202,7 @@ require(['underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueR
                     var month = arr[1];
                     if (month == 12) {
                         year++;
-                        month = 0;
+                        month = 1;
                     } else {
                         month++;
                     }
