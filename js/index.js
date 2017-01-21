@@ -161,8 +161,14 @@ require(['css!Animate', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap'
             },
             watch: {
                 upcount: function(newvalue, oldvalue) {
+                  var that = this;
                     if (newvalue > oldvalue) {
-                        this.prependlist(_.first(this.$store.state.listarr));
+                      setTimeout(function() {
+                          for (var i = 0, j = 3; i < j; i++) {
+                              that.prependlist(_.first(that.$store.state.listarr));
+                          }
+                      }, 500);
+
                     }
                 }
             },
@@ -232,7 +238,7 @@ require(['css!Animate', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap'
                     this.busy = true;
                     var that = this;
                     setTimeout(function() {
-                        for (var i = 0, j = 6; i < j; i++) {
+                        for (var i = 0, j = 3; i < j; i++) {
                             that.appendlist(_.last(that.$store.state.listarr));
                         }
                         that.busy = false;
