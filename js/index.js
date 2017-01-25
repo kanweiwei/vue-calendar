@@ -9,7 +9,7 @@ require.config({
         'text': ['http://cdn.bootcss.com/require-text/2.0.12/text.min', './text.min'],
         'Animate': ['./animate.min'],
         'jquery': ['http://apps.bdimg.com/libs/jquery/1.8.3/jquery.min', 'https://cdn.css.net/libs/jquery/1.8.3/jquery.min', './jquery'],
-        'underscore': ['http://apps.bdimg.com/libs/underscore.js/1.7.0/underscore-min', './underscore.min'],
+        'lodash': ['https://cdn.css.net/libs/lodash.js/3.10.1/lodash.min'],
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
         'vueTap': ['./vue-tap'],
         'infiniteScroll': './infiniteScroll',
@@ -35,7 +35,7 @@ require.config({
     }
 });
 
-require(['css!Animate', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
+require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
     function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
         Vue.use(infiniteScroll); //自定义scoll指令
         Vue.use(vueTap); //自定义tap指令
@@ -215,17 +215,11 @@ require(['css!Animate', 'underscore', 'infiniteScroll', 'vue', 'Tween', 'vueTap'
                         var nodelist = document.querySelectorAll("#clmain ul");
                         var a = Object.
                         keys(nodelist).map(function(item) {
-                            return nodelist[item]
-                        }).map(function(item) {
-                            return item.getBoundingClientRect().top
+                            return nodelist[item].getBoundingClientRect().top;
                         });
-                        var b = 0;
-                        for (var i = 0; i < a.length; i++) {
-                            if (a[i] > 0) {
-                                var b = i;
-                                break;
-                            }
-                        }
+                        var b = _.findIndex(a, function(value){
+                          return value > 0 ;
+                        });
                         var y = that.$store.state.listarr[b][0];
                         that.$store.commit('changeYear', y);
                         that.busy = false;
