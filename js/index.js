@@ -213,9 +213,8 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     if(this.busy){
                       setTimeout(function(){
                         var nodelist = document.querySelectorAll("#clmain ul");
-                        var a = Object.
-                        keys(nodelist).map(function(item) {
-                            return nodelist[item].getBoundingClientRect().top;
+                        var a = Array.prototype.slice.call(nodelist).map(function(item) {
+                            return item.getBoundingClientRect().top;
                         });
                         var b = _.findIndex(a, function(value){
                           return value > 0 ;
