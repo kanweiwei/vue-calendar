@@ -8,7 +8,6 @@ require.config({
     paths: {
         'text': ['http://cdn.bootcss.com/require-text/2.0.12/text.min', './text.min'],
         'Animate': ['./animate.min'],
-        'jquery': ['http://apps.bdimg.com/libs/jquery/1.8.3/jquery.min', 'https://cdn.css.net/libs/jquery/1.8.3/jquery.min', './jquery'],
         'lodash': ['https://cdn.css.net/libs/lodash.js/3.10.1/lodash.min'],
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
         'vueTap': ['./vue-tap'],
@@ -213,7 +212,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     if(this.busy){
                       setTimeout(function(){
                         var nodelist = document.querySelectorAll("#clmain ul");
-                        var a = Array.prototype.slice.call(nodelist).map(function(item) {
+                        var a = _.slice(nodelist).map(function(item) {
                             return item.getBoundingClientRect().top;
                         });
                         var b = _.findIndex(a, function(value){
