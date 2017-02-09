@@ -15,7 +15,8 @@ require.config({
         'Tween': ['https://cdn.css.net/libs/tween.js/16.3.5/Tween.min', './Tween.min'],
         'Vuex': ['https://cdn.css.net/libs/vuex/2.1.1/vuex.min', './vue-vuex.min'],
         'VueRouter': ['https://cdn.css.net/libs/vue-router/2.1.1/vue-router.min', './vue-router'],
-        'VueResource': ['https://cdn.css.net/libs/vue-resource/1.0.0/vue-resource.min', './vue-resource.min']
+        'VueResource': ['https://cdn.css.net/libs/vue-resource/1.0.0/vue-resource.min', './vue-resource.min'],
+        'axios': ['https://cdn.css.net/libs/axios/0.9.0/axios.min', './axios.min']
     },
     shim: {
         'infiniteScroll': {
@@ -34,13 +35,13 @@ require.config({
     }
 });
 
-require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'VueResource'],
-    function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, VueResource) {
+require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'axios'],
+    function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, axios) {
         Vue.use(infiniteScroll); //自定义scoll指令
         Vue.use(vueTap); //自定义tap指令
         Vue.use(Vuex); //状态管理
         Vue.use(VueRouter); //路由
-        Vue.use(VueResource); //AJAX
+        //AJAX    axios
 
         var store = new Vuex.Store({
             state: {
@@ -129,11 +130,15 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                       <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-if="day == 1" :style="list[3]" :data-y="list[0]" :data-m="list[1]" :data-date="day" >\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
+                        <span class="train" v-show="list[4][(day-1)].train"></span>\
+                        <span class="practice" v-show="list[4][(day-1)].practice"></span>\
                         <span class="cl-month">{{list[1]}}月</span>\
                       </router-link>\
                       <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-else>\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
+                        <span class="train" v-show="list[4][(day-1)].train"></span>\
+                        <span class="practice" v-show="list[4][(day-1)].practice"></span>\
                       </router-link>\
                     </template>\
                   </ul>\
@@ -194,17 +199,21 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
 
                 //初始化
                 init: function() {
-                    if (this.$store.state.listarr.length > 0) {
+                  var self = this;
+                    if (self.$store.state.listarr.length > 0) {
                         return false;
                     }
-                    var d = this.getToday();
-                    this.$store.commit('changeYear', d.year);
-                    this.$store.commit('editToday', d);
+                    var d = self.getToday();
+                    self.$store.commit('changeYear', d.year);
+                    self.$store.commit('editToday', d);
                     var year = d.year;
                     month = d.month;
-                    this.$store.commit('pushToListarr', this.createListArr(year, month));
-                    this.appendlist(_.last(this.$store.state.listarr));
-                    this.prependlist(_.first(this.$store.state.listarr));
+                    self.createListArr(year, month, 'pushToListarr' , function(){
+                      if(self.$store.state.listarr.length == 0) return;
+                      self.appendlist(_.last(self.$store.state.listarr));
+                      self.prependlist(_.first(self.$store.state.listarr));
+                    });
+
                 },
                 onScroll: function() {
                     this.busy = true;
@@ -229,10 +238,9 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                 loadMore: function() {
                     this.busy = true;
                     var that = this;
+                    if(that.$store.state.listarr.length == 0) return false;
                     setTimeout(function() {
-                        for (var i = 0, j = 3; i < j; i++) {
-                            that.appendlist(_.last(that.$store.state.listarr));
-                        }
+                        that.appendlist(_.last(that.$store.state.listarr));
                         that.busy = false;
                     }, 500);
                 },
@@ -246,10 +254,11 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     } else {
                         month--;
                     }
-                    this.$store.commit('unshiftToListarr', this.createListArr(year, month));
+                    this.createListArr(year, month, 'unshiftToListarr')
                 },
                 //列表尾部添加一个月
                 appendlist: function(arr) {
+                    console.log(arr);
                     var year = arr[0];
                     var month = arr[1];
                     if (month == 12) {
@@ -258,16 +267,67 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     } else {
                         month++;
                     }
-                    this.$store.commit('pushToListarr', this.createListArr(year, month));
+                    this.createListArr(year, month, 'pushToListarr')
+
                 },
                 //生成单个月份的列表项数组
-                createListArr: function(year, month) {
-                    var days = this.getdays(year, month);
-                    var marginL = this.getday(year, month, 1) > 0 ? this.getday(year, month, 1) : 0;
+                createListArr: function(year, month, action, cb) {
+                    var self = this;
+                    var days = self.getdays(year, month);
+                    var marginL = self.getday(year, month, 1) > 0 ? self.getday(year, month, 1) : 0;
                     marginL = {
                         marginLeft: marginL * 14 + '%'
                     };
-                    return [year, month, days, marginL];
+                    //ajax获取当月培训课程信息(暂时是模拟的，需要去后台获取一个月的培训信息)
+                    axios.get('http://www.baidu.com')
+                    .then(function(response){
+                      /*
+                      var infoarr = response.data.infoarr;
+                      以下为 infoarr 数据结构（包含一个月每天的信息）
+                      比如2017，1月，共28天，infoarr数据里有28个对象
+                      ...
+                      */
+
+                      /*
+                      infoarr = [
+                        {
+                          train: true,
+                          practice: false
+                        },
+                        {
+                          train: true,
+                          practice: false
+                        }
+                      ];
+                      */
+                      var infoarr = [];
+                      for(var i = 0; i<days; i++){
+                        infoarr[i] = {
+                          train: true, //培训
+                          practice: false //练习
+                        };
+                        if(i > 15){
+                          infoarr[i] = {
+                            train: true, //培训
+                            practice: true //练习
+                          };
+                        }
+                      }
+                      //var infoarr = response.data.infoarr;
+
+                      if(action){
+                        self.$store.commit(action, [year, month, days, marginL, infoarr] );
+                      }
+
+                      if(cb){
+                        cb();
+                      }
+                    })
+                    .catch(function(error){
+                      console.log(error);
+                    });
+
+
                 },
                 //当前日期信息
                 getToday: function() {
@@ -460,10 +520,56 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     time.month = vm.months[(time.month - 1)];
                     vm.$store.commit('changeSelectedDate', time);
                     vm.$store.commit('changeYear', time.year);
+
+                    vm.getcourse(vm.$route.params);
+
                 });
             },
             methods: {
-
+                getcourse: function (params) {
+                  var self = this;
+                  var time = {};
+                  time.year = parseInt(params.year);//年
+                  time.month = parseInt(params.month);//月
+                  time.date = parseInt(params.date);//日
+                  console.log(time);
+                  //ajax获取所点击的当天的所有课程；
+                  axios.get('http://www.baidu.com')
+                  .then(function(response){
+                    //以下是课程数据结构;
+                    //self.coursearr ＝ response.data.courses；
+                    self.coursearr = [
+                      {
+                          time: "12:00:00",
+                          title: "人际交流的重要性",
+                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                      },
+                      {
+                          time: "12:00:00",
+                          title: "人际交流的重要性",
+                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                      },
+                      {
+                          time: "12:00:00",
+                          title: "人际交流的重要性",
+                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                      },
+                      {
+                          time: "12:00:00",
+                          title: "人际交流的重要性",
+                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                      },
+                      {
+                          time: "12:00:00",
+                          title: "人际交流的重要性",
+                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
+                      }
+                    ]
+                  })
+                  .catch(function(error){
+                    console.log(error);
+                  })
+                }
             }
         };
 

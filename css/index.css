@@ -166,6 +166,41 @@ a, input {
   left: 20%;
   bottom:0;
 }
+.cl-main .cl-list li span.train {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+}
+.cl-main .cl-list li span.practice {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+}
+.cl-main .cl-list li span.train:before {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 12px;
+  color: #fff;
+  background-color: #ff0000;
+  border-radius: 50%;
+  content: '培'
+}
+.cl-main .cl-list li span.practice:before {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 12px;
+  color: #fff;
+  background-color: #00aeff;
+  border-radius: 50%;
+  content: '练'
+}
+
 
 /*过渡效果*/
 .fade-enter-active, .fade-leave-active {
