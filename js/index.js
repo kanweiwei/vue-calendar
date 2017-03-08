@@ -465,7 +465,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                       </div>\
                       <div class="course-ren" v-show="course.ren">\
                         讲师: {{course.ren}}\
-                      <div>\
+                      </div>\
                       <div class="course-title">\
                         {{course.title}}\
                       </div>\
@@ -537,22 +537,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     //self.coursearr ＝ response.data.courses；
                     self.coursearr = [
                       {
-                          time: "12:00:00",
-                          title: "人际交流的重要性",
-                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
-                      },
-                      {
-                          time: "12:00:00",
-                          title: "人际交流的重要性",
-                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
-                      },
-                      {
-                          time: "12:00:00",
-                          title: "人际交流的重要性",
-                          content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
-                      },
-                      {
-                          time: "12:00:00",
+                          time: "11:00:00",
                           title: "人际交流的重要性",
                           content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
                       },
