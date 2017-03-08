@@ -2,6 +2,10 @@
   padding: 0;
   margin: 0;
 }
+html ::-webkit-scrollbar {
+    /*不要滚动条*/
+    display: none;
+}
 html, body {
   position: relative;
   width: 100%;
@@ -117,7 +121,7 @@ a, input {
   height: calc(100% - 50px);
   padding-top: 70px;
   padding-bottom: 50px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }

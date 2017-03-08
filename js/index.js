@@ -12,6 +12,7 @@ require.config({
         'vue': ['http://cdn.bootcss.com/vue/2.0.1/vue.min', './vue.min'],
         'vueTap': ['./vue-tap'],
         'infiniteScroll': './infiniteScroll',
+        'inobounce': './inobounce',
         'Tween': ['https://cdn.css.net/libs/tween.js/16.3.5/Tween.min', './Tween.min'],
         'Vuex': ['https://cdn.css.net/libs/vuex/2.1.1/vuex.min', './vue-vuex.min'],
         'VueRouter': ['https://cdn.css.net/libs/vue-router/2.1.1/vue-router.min', './vue-router'],
@@ -20,8 +21,7 @@ require.config({
     },
     shim: {
         'infiniteScroll': {
-            deps: ['vue'],
-            exports: 'Vue'
+            deps: ['vue', 'inobounce']
         },
         'Vuex': {
             desps: ['vue'],
@@ -50,7 +50,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     year: 2016,
                     month: 1,
                     date: 1,
-                    day: 1
+                    day: 2
                 },
                 listarr: [],
                 upcount: 0, //向上翻页次数,
@@ -131,14 +131,12 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
                         <span class="train" v-show="list[4][(day-1)].train"></span>\
-                        <span class="practice" v-show="list[4][(day-1)].practice"></span>\
                         <span class="cl-month">{{list[1]}}月</span>\
                       </router-link>\
                       <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-else>\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
                         <span class="train" v-show="list[4][(day-1)].train"></span>\
-                        <span class="practice" v-show="list[4][(day-1)].practice"></span>\
                       </router-link>\
                     </template>\
                   </ul>\
@@ -168,9 +166,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                   var that = this;
                     if (newvalue > oldvalue) {
                       setTimeout(function() {
-                          for (var i = 0, j = 3; i < j; i++) {
-                              that.prependlist(_.first(that.$store.state.listarr));
-                          }
+                          that.prependlist(_.first(that.$store.state.listarr));
                       }, 500);
 
                     }
@@ -227,6 +223,9 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                         var b = _.findIndex(a, function(value){
                           return value > 0 ;
                         });
+                        if (b < 0) {
+                          return false;
+                        }
                         var y = that.$store.state.listarr[b][0];
                         that.$store.commit('changeYear', y);
                         that.busy = false;
@@ -258,7 +257,6 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                 },
                 //列表尾部添加一个月
                 appendlist: function(arr) {
-                    console.log(arr);
                     var year = arr[0];
                     var month = arr[1];
                     if (month == 12) {
@@ -279,7 +277,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                         marginLeft: marginL * 14 + '%'
                     };
                     //ajax获取当月培训课程信息(暂时是模拟的，需要去后台获取一个月的培训信息)
-                    axios.get('http://www.baidu.com')
+                    axios.get('./test.php')
                     .then(function(response){
                       /*
                       var infoarr = response.data.infoarr;
@@ -326,8 +324,6 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     .catch(function(error){
                       console.log(error);
                     });
-
-
                 },
                 //当前日期信息
                 getToday: function() {
@@ -391,7 +387,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                 enter-active-class="animated bounceInUp"\
                 leave-active-class="animated bounceOutDown">\
                   <div class="cl-footer" v-if="showfooter">\
-                    <span class="col-left" v-tap="{ methods: addLastMonth }">向上翻</span>\
+                    <span class="col-left" v-tap="{ methods: addLastMonth }">▲上月</span>\
                     <span class=" col-left" v-tap="{ methods: gotoToday }">今天</span>\
                   </div>\
                   </transition>\
@@ -461,9 +457,15 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                   </div>\
                   <template v-for="course in coursearr">\
                     <div class="course">\
-                    <div class="course-time">\
-                      时间: {{course.time}}\
-                    </div>\
+                      <div class="course-time">\
+                        时间: {{course.time}}\
+                      </div>\
+                      <div class="course-place" v-show="course.place">\
+                        地点: {{course.place}}\
+                      </div>\
+                      <div class="course-ren" v-show="course.ren">\
+                        讲师: {{course.ren}}\
+                      <div>\
                       <div class="course-title">\
                         {{course.title}}\
                       </div>\
@@ -476,11 +478,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
             ',
             data: function() {
                 return {
-                    coursearr: [{
-                        time: "12:00:00",
-                        title: "人际交流的重要性",
-                        content: "好的人际关系,可使工作成功率与个人幸福达成率达85%以上;一个人获得成功的因素中,85%决定于人际关系....."
-                    }],
+                    coursearr: [],
                     week: [
                         "Sunday",
                         "Monday",
@@ -532,9 +530,8 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                   time.year = parseInt(params.year);//年
                   time.month = parseInt(params.month);//月
                   time.date = parseInt(params.date);//日
-                  console.log(time);
                   //ajax获取所点击的当天的所有课程；
-                  axios.get('http://www.baidu.com')
+                  axios.get('./test.php')
                   .then(function(response){
                     //以下是课程数据结构;
                     //self.coursearr ＝ response.data.courses；
