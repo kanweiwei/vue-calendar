@@ -17,7 +17,8 @@ require.config({
         'Vuex': ['https://cdn.css.net/libs/vuex/2.1.1/vuex.min', './vue-vuex.min'],
         'VueRouter': ['https://cdn.css.net/libs/vue-router/2.1.1/vue-router.min', './vue-router'],
         'VueResource': ['https://cdn.css.net/libs/vue-resource/1.0.0/vue-resource.min', './vue-resource.min'],
-        'axios': ['https://cdn.css.net/libs/axios/0.9.0/axios.min', './axios.min']
+        'axios': ['https://cdn.css.net/libs/axios/0.9.0/axios.min', './axios.min'],
+        'swiper': ['./swiper/swiper.min']
     },
     shim: {
         'infiniteScroll': {
@@ -35,8 +36,8 @@ require.config({
     }
 });
 
-require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'axios'],
-    function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, axios) {
+require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'Vuex', 'VueRouter', 'axios', 'swiper'],
+    function(Animate, _, infiniteScroll, Vue, Tween, vueTap, Vuex, VueRouter, axios, Swiper) {
         Vue.use(infiniteScroll); //自定义scoll指令
         Vue.use(vueTap); //自定义tap指令
         Vue.use(Vuex); //状态管理
@@ -99,24 +100,107 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
               <li>五</li>\
               <li>六</li>\
             </ul>\
+            <template v-if="show">\
+              <div class="swiper-container">\
+                <div class="swiper-wrapper">\
+                    <router-link tag="div" :to="\'/manage/\'+ $route.params.year + \'/\' + $route.params.month + \'/\' + n + \'/\' + $route.params.days" class="swiper-slide" v-for="n in $store.state.selectedDate.days" replace :class="$route.params.date == n ? \'today\': \'\' ">{{n}}</router-link>\
+                </div>\
+              </div>\
+              <div class="selectedTime">\
+                {{day}}&nbsp;&nbsp;{{month}}.{{date}},&nbsp;&nbsp;{{year}}\
+              </div>\
+            </template>\
             <transition name=""\
             enter-active-class="animated bounceInDown"\>\
-            <div class="selectedTime" v-if="show">\
-              {{$store.state.selectedDate.day}}&nbsp;&nbsp;{{$store.state.selectedDate.month}}.{{$store.state.selectedDate.date}},&nbsp;&nbsp;{{$store.state.selectedDate.year}}\
-            </div>\
             </transition>\
           </div>\
             ',
             data: function() {
-
+              return {
+                  week: [
+                      "Sunday",
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday"
+                  ],
+                  months: [
+                      'Jan',
+                      'Feb',
+                      'Mar',
+                      'Apr',
+                      'May',
+                      'June',
+                      'July',
+                      'Aug',
+                      'Sept',
+                      'Oct',
+                      'Nov',
+                      'Dec'
+                  ]
+              }
+            },
+            mounted: function(){
+              var self = this;
+              setTimeout(function(){
+                var swiper = new Swiper('.swiper-container', {
+                    slidesPerView: 7
+                });
+                if (self.date < 5 || self.date > 25) {
+                  swiper.slideTo(self.date-1, 500, false);
+                } else {
+                  swiper.slideTo(self.date-4, 500, false);
+                }
+              },0)
             },
             computed: {
                 year: function() {
                     return this.$store.state.year;
                 },
+                days: function() {
+                  console.log(this.$store.state.days)
+                  return this.$store.state.days;
+                },
+                date: function() {
+                  return this.$route.params.date;
+                },
                 show: function() {
                     return !this.$store.state.showfooter;
+                },
+                day: function() {
+                  var year = this.$route.params.year,
+                    month = this.$route.params.month-1,
+                    date = this.$route.params.date;
+                  var day = new Date(year, month, date).getDay();
+                  if (day == 7){
+                    return this.week[0];
+                  } else {
+                    return this.week[day];
+                  }
+                },
+                month: function () {
+                  return this.months[this.$route.params.month - 1];
                 }
+            },
+            watch: {
+              show: function(newV,oldV){
+                console.log(newV);
+                var self = this;
+                if(newV){
+                  setTimeout(function(){
+                    var swiper = new Swiper('.swiper-container', {
+                        slidesPerView: 7
+                    });
+                    if (self.date < 5 || self.date > 25) {
+                      swiper.slideTo(self.date-1, 500, false);
+                    } else {
+                      swiper.slideTo(self.date-4, 500, false);
+                    }
+                  },0)
+                }
+              }
             }
         };
 
@@ -127,13 +211,13 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
               <template v-for="list in listarr" :key="list[0]+\'\'+list[1]" >\
                   <ul class="cl-list" :data-ym="list[0]+\'\'+list[1]" >\
                     <template  v-for="day in list[2]" :key="list[0]+\'\'+list[1]+\'\'+day">\
-                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-if="day == 1" :style="list[3]" :data-y="list[0]" :data-m="list[1]" :data-date="day" >\
+                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day+\'/\'+list[2]"  tag="li" v-if="day == 1" :style="list[3]" :data-y="list[0]" :data-m="list[1]" :data-date="day" >\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
                         <span class="train" v-show="list[4][(day-1)].train"></span>\
                         <span class="cl-month">{{list[1]}}月</span>\
                       </router-link>\
-                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day" tag="li" v-else>\
+                      <router-link :to="\'/manage/\'+list[0]+\'/\'+list[1]+\'/\'+day+\'/\'+list[2]"  tag="li" v-else>\
                         <span v-if="list[0] == today.year && list[1] == today.month && day == today.date"  id="cltoday" class="span-circle">{{day}}</span>\
                         <span v-else >{{day}}</span>\
                         <span class="train" v-show="list[4][(day-1)].train"></span>\
@@ -504,6 +588,18 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     ]
                 }
             },
+            computed: {
+              date: function(){
+                return this.$route.params.date;
+              }
+            },
+            watch: {
+              date: function(newV, oldV) {
+                if (newV != oldV ) {
+                  this.getcourse(this.$route.params);
+                }
+              }
+            },
             created: function() {
 
             },
@@ -512,6 +608,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
                     var time = {};
                     time.year = parseInt(vm.$route.params.year);
                     time.month = parseInt(vm.$route.params.month);
+                    time.days = parseInt(vm.$route.params.days)
                     time.date = parseInt(vm.$route.params.date);
                     time.day = (new Date(time.year, (time.month - 1), time.date)).getDay();
                     time.day = vm.week[time.day];
@@ -560,7 +657,7 @@ require(['css!Animate', 'lodash', 'infiniteScroll', 'vue', 'Tween', 'vueTap', 'V
             path: '/',
             component: calendar
         }, {
-            path: '/manage/:year/:month/:date',
+            path: '/manage/:year/:month/:date/:days',
             component: clmanage
         }];
 
