@@ -1,0 +1,8 @@
+function rand(n){
+  var max = Math.pow(10,n)-Math.pow(10,n-1)-1;
+  var min = Math.pow(10,n-1);
+
+  var max = Math.pow(10,n),
+    min = Math.pow(10,n-1);
+  return Math.floor(Math.random()*max + min);
+}
